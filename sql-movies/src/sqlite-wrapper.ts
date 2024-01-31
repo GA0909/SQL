@@ -50,7 +50,7 @@ export class SQLiteWrapper {
     return new Promise((resolve, reject) => {
       fs.unlink(this.pathToFile, err => {
         if (err) return reject(err);
-        resolve();
+        Promise.resolve();
       });
     });
   }
@@ -63,7 +63,7 @@ export class SQLiteWrapper {
       await new Promise((resolve, reject) => {
         fs.mkdir(DB_DIR, err => {
           if (err) return reject(err);
-          resolve();
+          Promise.resolve();
         });
       });
     }
@@ -79,7 +79,7 @@ export class SQLiteWrapper {
     await new Promise((resolve, reject) => {
       fs.copyFile(sourcePath, targetPath, err => {
         if (err) return reject(err);
-        resolve();
+        Promise.resolve();
       });
     });
     return new SQLiteWrapper(targetPath);
