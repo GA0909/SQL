@@ -1,22 +1,22 @@
-import sqlite3 from "sqlite3"; //using sql liberies
-import fs from "fs"; //file systems
-import { resolve } from "path"; // resolving file paths
+import sqlite3 from "sqlite3";
+import fs from "fs";
+import { resolve } from "path";
 
-const sql = sqlite3.verbose(); //using sql to call verbose for debuging
+const sql = sqlite3.verbose();
 
-const DB_DIR = resolve(__dirname, `../_db`); // making the directary file path
+const DB_DIR = resolve(__dirname, `../_db`);
 
 const path = (prefix: string): string => {
   return `${DB_DIR}/${prefix}-database.sqlite3`;
-}; //getting the full path
+};
 
-export class SQLiteWrapper { //making a class
-  private pathToFile: string; //storing path to file
-  private db: sqlite3.Database; // storing database instance
+export class SQLiteWrapper {
+  private pathToFile: string;
+  private db: sqlite3.Database;
 
-  constructor(pathToFile: string) { //defining a constructor
-    this.pathToFile = pathToFile; //declaring filepath
-    this.db = new sql.Database(this.pathToFile); // using sql database call
+  constructor(pathToFile: string) {
+    this.pathToFile = pathToFile;
+    this.db = new sql.Database(this.pathToFile);
   }
 
   async selectSingleRow(query: string): Promise<any> {
@@ -50,7 +50,7 @@ export class SQLiteWrapper { //making a class
     return new Promise((resolve, reject) => {
       fs.unlink(this.pathToFile, err => {
         if (err) return reject(err);
-        Promise.resolve();
+        resolve();
       });
     });
   }
@@ -63,7 +63,7 @@ export class SQLiteWrapper { //making a class
       await new Promise((resolve, reject) => {
         fs.mkdir(DB_DIR, err => {
           if (err) return reject(err);
-          Promise.resolve();
+          resolve();
         });
       });
     }
@@ -79,7 +79,7 @@ export class SQLiteWrapper { //making a class
     await new Promise((resolve, reject) => {
       fs.copyFile(sourcePath, targetPath, err => {
         if (err) return reject(err);
-        Promise.resolve();
+        resolve();
       });
     });
     return new SQLiteWrapper(targetPath);
