@@ -1,22 +1,22 @@
-import sqlite3 from "sqlite3";
-import fs from "fs";
-import { resolve } from "path";
+import sqlite3 from "sqlite3"; //using sql liberies
+import fs from "fs"; //file systems
+import { resolve } from "path"; // resolving file paths
 
-const sql = sqlite3.verbose();
+const sql = sqlite3.verbose(); //using sql to call verbose for debuging
 
-const DB_DIR = resolve(__dirname, `../_db`);
+const DB_DIR = resolve(__dirname, `../_db`); // making the directary file path
 
 const path = (prefix: string): string => {
   return `${DB_DIR}/${prefix}-database.sqlite3`;
-};
+}; //getting the full path
 
-export class SQLiteWrapper {
-  private pathToFile: string;
-  private db: sqlite3.Database;
+export class SQLiteWrapper { //making a class
+  private pathToFile: string; //storing path to file
+  private db: sqlite3.Database; // storing database instance
 
-  constructor(pathToFile: string) {
-    this.pathToFile = pathToFile;
-    this.db = new sql.Database(this.pathToFile);
+  constructor(pathToFile: string) { //defining a constructor
+    this.pathToFile = pathToFile; //declaring filepath
+    this.db = new sql.Database(this.pathToFile); // using sql database call
   }
 
   async selectSingleRow(query: string): Promise<any> {
