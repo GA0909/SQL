@@ -1,4 +1,4 @@
-import { APPS_CATEGORIES, CATEGORIES } from "../shopify-table-names";
+import { APPS_CATEGORIES, CATEGORIES, REVIEWS } from "../shopify-table-names";
 
 export const selectCount = (table: string): string => {
   return `
@@ -15,25 +15,30 @@ export const selectRowById = (id: number, table: string): string => {
 
 export const selectCategoryByTitle = (title: string): string => {
   return `
-      SELECT * FROM ${CATEGORIES} WHERE title = ${title};
+      SELECT * FROM ${CATEGORIES} WHERE title = '${title}';
   `;
 };
 
 export const selectAppCategoriesByAppId = (appId: number): string => {
   return `
-      SELECT * FROM ${APPS_CATEGORIES} WHERE app_id = ${appId};
+      SELECT category_id FROM ${APPS_CATEGORIES} WHERE app_id = ${appId};
   `;
 };
 
 export const selectUnigueRowCount = (tableName: string, columnName: string): string => {
-  throw new Error(`todo`);
+  return `
+    SELECT COUNT(DISTINCT ${columnName}) AS count FROM ${tableName};
+  `;
 };
 
 export const selectReviewByAppIdAuthor = (appId: number, author: string): string => {
-  throw new Error(`todo`);
+  return `
+    SELECT * FROM ${REVIEWS} WHERE app_id = ${appId} AND author = '${author}';
+  `;
 };
 
 export const selectColumnFromTable = (columnName: string, tableName: string): string => {
-  throw new Error(`todo`);
+  return `
+    SELECT ${columnName} FROM ${tableName};
+  `;
 };
-
