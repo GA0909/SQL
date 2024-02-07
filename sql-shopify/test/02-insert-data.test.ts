@@ -16,19 +16,23 @@ import { resolve } from "path";
 const pricingPlansDir = resolve(__dirname, "../_data/pricing_plans.csv");
 
 const insertApps = (apps: App[]) => {
-    return (
-        `todo` + 
-        apps.map(app => `('${app.url}',
-            '${escape(app.title)}',
-            '${escape(app.tagline)}',
-            '${escape(app.developer)}',
-            '${escape(app.developerLink)}',
-            '${escape(app.icon)}',
-            ${app.rating},
-            ${app.reviewsCount},
-            '${escape(app.description)}',
-            '${escape(app.pricingHint)}')`).join(",")
-    );
+    const values = apps.map(app => `(
+        '${escape(app.url)}',
+        '${escape(app.title)}',
+        '${escape(app.tagline)}',
+        '${escape(app.developer)}',
+        '${escape(app.developerLink)}',
+        '${escape(app.icon)}',
+        ${app.rating},
+        ${app.reviewsCount},
+        '${escape(app.description)}',
+        '${escape(app.pricingHint)}'
+    )`).join(",");
+
+    return `
+        INSERT INTO ${APPS} (url, title, tagline, developer, developer_link, icon, rating, reviews_count, description, pricing_hint)
+        VALUES ${values};
+    `;
 };
 
 const insertCategories = (categories: Category[]) => {
