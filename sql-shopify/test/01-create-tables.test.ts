@@ -11,25 +11,88 @@ import {
 } from "../src/shopify-table-names";
 import { tableInfo, indexList } from "../src/queries/table-info";
 
-const CREATE_APPS_TABLE = `todo`;
+const CREATE_APPS_TABLE = `
+CREATE TABLE IF NOT EXISTS ${APPS} (
+    id integer PRIMARY KEY NOT NULL,
+    url text NOT NULL,
+    title text NOT NULL,
+    tagline text NOT NULL,
+    developer text NOT NULL,
+    developer_link text NOT NULL,
+    icon text NOT NULL,
+    rating real NOT NULL,
+    reviews_count integer NOT NULL,
+    description text NOT NULL,
+    pricing_hint text
+);
+`;
 
-const CREATE_CATEGORIES_TABLE = `todo`;
+const CREATE_CATEGORIES_TABLE = `
+CREATE TABLE IF NOT EXISTS ${CATEGORIES} (
+    id integer PRIMARY KEY NOT NULL,
+    title text NOT NULL
+);
+`;
 
-const CREATE_APPS_CATEGORIES_TABLE = `todo`;
+const CREATE_APPS_CATEGORIES_TABLE = `
+CREATE TABLE IF NOT EXISTS ${APPS_CATEGORIES} (
+    app_id integer NOT NULL,
+    category_id integer NOT NULL,
+    PRIMARY KEY (app_id, category_id)
+);
+`;
 
-const CREATE_KEY_BENEFITS_TABLE = `todo`;
+const CREATE_KEY_BENEFITS_TABLE = `
+CREATE TABLE IF NOT EXISTS ${KEY_BENEFITS} (
+    app_id integer NOT NULL,
+    title text NOT NULL,
+    description text NOT NULL,
+    PRIMARY KEY (app_id, title)
+);
+`;
 
-const CREATE_PRICING_PLANS_TABLE = `todo`;
+const CREATE_PRICING_PLANS_TABLE = `
+CREATE TABLE IF NOT EXISTS ${PRICING_PLANS} (
+    id integer PRIMARY KEY NOT NULL,
+    price text NOT NULL
+);
+`;
 
-const CREATE_APPS_PRICING_PLANS_TABLE = `todo`;
+const CREATE_APPS_PRICING_PLANS_TABLE = `
+CREATE TABLE IF NOT EXISTS ${APPS_PRICING_PLANS} (
+    app_id integer NOT NULL,
+    pricing_plan_id integer NOT NULL,
+    PRIMARY KEY (app_id, pricing_plan_id)
+    );
+`;
 
-const CREATE_REVIEWS_TABLE = `todo`;
+const CREATE_REVIEWS_TABLE = `
+CREATE TABLE IF NOT EXISTS ${REVIEWS} (
+    app_id integer NOT NULL,
+    author text NOT NULL,
+    body text NOT NULL,
+    rating integer NOT NULL,
+    helpful_count integer NOT NULL,
+    date_created text NOT NULL,
+    developer_reply text,
+    developer_reply_date text
+);
+`;
 
-const CREATE_INDEX_REVIEWS_AUTHOR = `todo`;
+const CREATE_INDEX_REVIEWS_AUTHOR = `
+CREATE INDEX IF NOT EXISTS reviews_author_idx
+ON ${REVIEWS} (author);
+`;
 
-const CREATE_INDEX_PRICING_PLANS_PRICE = `todo`;
+const CREATE_INDEX_PRICING_PLANS_PRICE = `
+CREATE INDEX IF NOT EXISTS pricing_plans_price_idx
+ON ${PRICING_PLANS} (price);
+`;
 
-const CREATE_UNIQUE_INDEX_APPS_ID = `todo`;
+const CREATE_UNIQUE_INDEX_APPS_ID = `
+CREATE UNIQUE INDEX IF NOT EXISTS apps_id_unq_idx
+ON ${APPS} (id);
+`;
 
 describe("Create Tables", () => {
     let db: Database;
