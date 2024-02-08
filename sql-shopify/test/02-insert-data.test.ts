@@ -214,7 +214,7 @@ describe("Insert Data", () => {
 
     it("should insert apps pricing plans data", async done => {
         const pricePlans = await ShopifyCsvLoader.pricingPlans();
-        const prices = (await db.selectMultipleRows(`todo`)) as PricingPlanPrice[];
+        const prices = (await db.selectMultipleRows(`SELECT * FROM ${PRICING_PLANS}`)) as PricingPlanPrice[];
         
         const chunks = _.chunk(pricePlans, 500);
         for (const ch of chunks){
