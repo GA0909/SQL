@@ -42,10 +42,17 @@ describe("Simple Queries", () => {
 
     it("should select count of reviews created in year 2014, 2015 and 2016", async done => {
         const query = `
-            SELECT SUBSTR(date_created, 1, 4) AS year, COUNT(*) AS review_count
-            FROM ${REVIEWS}
-            WHERE date_created BETWEEN '2014' AND '2016'
-            GROUP BY year;
+        SELECT 
+    SUBSTR(date_created, -4) AS year,
+    COUNT(*) AS review_count
+FROM 
+    reviews
+WHERE 
+    year >'2013'AND year <'2017'
+GROUP BY 
+    year;
+
+
         `;
         
         const result = await db.selectMultipleRows(query);
