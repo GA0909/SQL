@@ -21,7 +21,19 @@ export const selectCategoryByTitle = (title: string): string => {
 
 export const selectAppCategoriesByAppId = (appId: number): string => {
   return `
-      SELECT category_id FROM ${APPS_CATEGORIES} WHERE app_id = ${appId};
+  SELECT 
+  a.title AS app_title,
+  ac.category_id,
+  c.title AS category_title
+FROM 
+  apps AS a
+JOIN 
+  apps_categories AS ac ON a.id = ac.app_id
+JOIN 
+  categories AS c ON ac.category_id = c.id
+WHERE 
+  a.id = ${appId};
+
   `;
 };
 
