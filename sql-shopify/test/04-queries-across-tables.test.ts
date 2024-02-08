@@ -1,4 +1,5 @@
 import { Database } from "../src/database";
+import { APPS_CATEGORIES, APPS_PRICING_PLANS, CATEGORIES, PRICING_PLANS } from "../src/shopify-table-names";
 import { minutes } from "./utils";
 
 describe("Queries Across Tables", () => {
@@ -9,7 +10,11 @@ describe("Queries Across Tables", () => {
     }, minutes(1));
 
     it("should select count of apps which have free pricing plan", async done => {
-        const query = `todo`;
+        const query = `
+        SELECT COUNT(DISTINCT app_id) AS count
+        FROM ${APPS_PRICING_PLANS}
+        WHERE pricing_plan_id IN (1, 13);
+        `;
         const result = await db.selectSingleRow(query);
         expect(result).toEqual({
             count: 1112
@@ -18,7 +23,14 @@ describe("Queries Across Tables", () => {
     }, minutes(1));
 
     it("should select top 3 most common categories", async done => {
-        const query = `todo`;
+        const query = `
+        SELECT c.title AS category, COUNT(ac.app_id) AS count
+        FROM ${CATEGORIES} c
+        JOIN ${APPS_CATEGORIES} ac ON c.id = ac.category_id
+        GROUP BY c.title
+        ORDER BY COUNT(ac.app_id) DESC
+        LIMIT 3;
+        `;
         const result = await db.selectMultipleRows(query);
         expect(result).toEqual([
             { count: 1193, category: "Store design" },
@@ -29,7 +41,35 @@ describe("Queries Across Tables", () => {
     }, minutes(1));
 
     it("should select top 3 prices by appearance in apps and in price range from $5 to $10 inclusive (not matters monthly or one time payment)", async done => {
-        const query = `todo`;
+        const query = `
+        SELECT 
+    price,
+    CAST(
+        SUBSTR(
+            SUBSTR(price, INSTR(price, '$') + 1), 
+            1, 
+            INSTR(SUBSTR(price, INSTR(price, '$') + 1), '/') - 1
+        ) AS DECIMAL(10, 2)
+    ) AS casted_price,
+    (
+        SELECT COUNT(*)
+        FROM apps_pricing_plans
+        WHERE pricing_plan_id = pricing_plans.id
+    ) AS count
+FROM 
+    pricing_plans
+WHERE 
+    CAST(
+        SUBSTR(
+            SUBSTR(price, INSTR(price, '$') + 1), 
+            1, 
+            INSTR(SUBSTR(price, INSTR(price, '$') + 1), '/') - 1
+        ) AS DECIMAL(10, 2)
+    ) BETWEEN 5 AND 10
+    ORDER BY count DESC
+    LIMIT 3;
+
+        `;
         const result = await db.selectMultipleRows(query);
         expect(result).toEqual([
             { count: 225, price: "$9.99/month", casted_price: 9.99 },
