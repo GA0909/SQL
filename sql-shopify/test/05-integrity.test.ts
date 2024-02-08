@@ -14,7 +14,12 @@ describe("Foreign Keys", () => {
 
     it("should not be able to delete category if any app is linked", async done => {
         const categoryId = 6;
-        const query = `todo`;
+        const query = `
+          DELETE FROM ${CATEGORIES}
+          WHERE 
+              id = ${categoryId} AND
+              id NOT IN (SELECT category_id FROM ${APPS});
+      `;
         try {
             await db.delete(query);
           } catch (e) {}
@@ -27,7 +32,12 @@ describe("Foreign Keys", () => {
 
     it("should not be able to delete pricing plan if any app is linked", async done => {
         const pricingPlanId = 100;
-        const query = `todo`;
+        const query = `
+          DELETE FROM ${PRICING_PLANS}
+          WHERE 
+              id = ${pricingPlanId} AND
+              id NOT IN (SELECT pricing_plan_id FROM ${APPS});
+      `;
 
         try {
             await db.delete(query);
