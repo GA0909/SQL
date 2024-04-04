@@ -1,0 +1,10 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\sql-movies",
+    "\\sql-movies\\src",
+    "\\sql-movies\\test"
+  ],
+  "SelectedNode": "\\sql-movies\\test\\01-create-tables.test.ts",
+  "PreviewInSolutionExplorer": false
+}
