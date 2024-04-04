@@ -15,41 +15,48 @@ import { resolve } from "path";
 
 const pricingPlansDir = resolve(__dirname, "../_data/pricing_plans.csv");
 
-const insertApps = (apps: App[]) => {
+export const insertApps = (apps: App[]): string => {
     return (
-        `todo` + 
-        apps.map(app => `('${app.url}',
-            '${escape(app.title)}',
-            '${escape(app.tagline)}',
-            '${escape(app.developer)}',
-            '${escape(app.developerLink)}',
-            '${escape(app.icon)}',
-            ${app.rating},
-            ${app.reviewsCount},
-            '${escape(app.description)}',
-            '${escape(app.pricingHint)}')`).join(",")
+      `INSERT INTO ${APPS} ` +
+      `(url, title, tagline, developer, developer_link, icon, rating, reviews_count, description, pricing_hint) ` +
+      `VALUES ` +
+      apps
+        .map(
+          app =>
+            `('${escape(app.url)}', '${escape(app.title)}', '${escape(app.tagline)}', ` +
+            `'${escape(app.developer)}', '${escape(app.developerLink)}', '${escape(app.icon)}', ` +
+            `${app.rating}, ${app.reviewsCount}, '${escape(app.description)}', ` +
+            `${app.pricingHint ? `'${escape(app.pricingHint)}'` : 'NULL'})`
+        )
+        .join(",")
     );
-};
+  };
 
-const insertCategories = (categories: Category[]) => {
+const insertCategories = (categories: Category[]): string => {
     return (
-        `todo` + 
+        `INSERT INTO ${CATEGORIES} ` +
+      `(title) ` +
+      `VALUES ` +
         categories.map(category => `('${category.title}')`).join(",")
     );
 };
 
-const insertAppCategories = (appCategories: AppCategory[]) => {
+const insertAppCategories = (appCategories: AppCategory[]): string => {
     return (
-        `todo` + 
+        `INSERT INTO ${APPS_CATEGORIES} ` +
+        `(app_id,category_id) `+
+        `VALUES ` + 
         appCategories.map(appCategory => 
             `('${appCategory.shopifyAppId}',
             '${appCategory.categoryId}')`).join(",")
     );
 };
 
-const insertKeyBenefits = (keyBenefits: KeyBenefit[]) => {
+const insertKeyBenefits = (keyBenefits: KeyBenefit[]): string => {
     return (
-        `todo` + 
+        `INSERT INTO ${KEY_BENEFITS} ` +
+        `(app_id,title,description) `+
+        `VALUES ` + 
         keyBenefits.map(keyBenefit => 
             `('${keyBenefit.shopifyAppId}',
             '${escape(keyBenefit.title)}',
@@ -57,32 +64,40 @@ const insertKeyBenefits = (keyBenefits: KeyBenefit[]) => {
     );
 };
 
-const insertPricingPlans = (pricingPlans: string[]) => {
+const insertPricingPlans = (pricingPlans: string[]): string => {
     return (
-        `todo` + 
+        `INSERT INTO ${PRICING_PLANS} ` +
+        `(price) `+
+        `VALUES ` + 
         pricingPlans.map(pricingPlan => 
             `('${pricingPlan}')`).join(",")
     );
 };
 
-const insertReviews = (reviews: Review[]) => {
+const insertReviews = (reviews: Review[]): string => {
     return (
-        `todo`+ 
-            reviews.map(review => `(
-                ${review.shopifyAppId},
-                '${escape(review.author)}',
-                '${escape(review.body)}',
-                ${review.rating},
-                ${review.helpfulCount},
-                '${review.dateCreated}',
-                '${escape(review.developerReply)}',
-                '${review.developerReplyDate}')`).join(",")
+        `INSERT INTO ${REVIEWS} ` +
+        `(app_id, author, body, rating, helpful_count, date_created, developer_reply, developer_reply_date) ` +
+        `VALUES ` + 
+        reviews.map(review => `(
+            ${review.shopifyAppId},
+            '${escape(review.author)}',
+            '${escape(review.body)}',
+            ${review.rating},
+            ${review.helpfulCount},
+            '${review.dateCreated}', ` +
+            `${review.developerReply ? `'${escape(review.developerReply)}'` : 'NULL'}, ` + 
+            `${review.developerReplyDate ? `'${escape(review.developerReplyDate)}'` : 'NULL'} )`
+        ).join(",")
     );
 };
 
-const insertAppPricingPlans = (pricingPlans: PricingPlan[], prices: PricingPlanPrice[]) => {
+
+const insertAppPricingPlans = (pricingPlans: PricingPlan[], prices: PricingPlanPrice[]): string => {
     return (
-        `todo` + 
+        `INSERT INTO ${APPS_PRICING_PLANS} ` +
+        `(app_id,pricing_plan_id) `+
+        `VALUES ` +
         pricingPlans.map(pricingPlan => 
             `('${pricingPlan.shopifyAppId}', '${prices.find(it => it.price === pricingPlan.price)!.id}')
             `).join(",")
@@ -105,7 +120,7 @@ describe("Insert Data", () => {
             await db.insert(insertApps(ch));
         }
         const count = await db.selectSingleRow(selectCount(APPS));
-        expect(count.c).toBe(2831);
+        expect(count.count).toBe(2831);
 
         const row = await db.selectSingleRow(selectRowById(1000, APPS));
         expect(row.title).toEqual("Yottie ‑ YouTube Video App");
@@ -119,7 +134,7 @@ describe("Insert Data", () => {
         await db.insert(insertCategories(categories));
 
         const count = await db.selectSingleRow(selectCount(CATEGORIES));
-        expect(count.c).toBe(12);
+        expect(count.count).toBe(12);
 
         const row = await db.selectSingleRow(selectRowById(5, CATEGORIES));
         expect(row.title).toEqual("Customer support");
@@ -139,7 +154,7 @@ describe("Insert Data", () => {
         }
 
         const count = await db.selectSingleRow(selectCount(APPS_CATEGORIES));
-        expect(count.c).toEqual(4155);
+        expect(count.count).toEqual(4155);
 
         const appCategoriesRows = await db.selectMultipleRows(selectAppCategoriesByAppId(1056));
         expect(appCategoriesRows).toEqual([
@@ -158,10 +173,10 @@ describe("Insert Data", () => {
         await db.insert(insertKeyBenefits(keyBenefits));
     
         const count = await db.selectSingleRow(selectCount(KEY_BENEFITS));
-        expect(count.c).toEqual(7446);
+        expect(count.count).toEqual(7446);
 
         const uniqueValues = await db.selectSingleRow(selectUnigueRowCount(KEY_BENEFITS, "description"));
-        expect(uniqueValues.c).toEqual(7281);
+        expect(uniqueValues.count).toEqual(7281);
         done();
     },
     minutes(1));
@@ -171,7 +186,7 @@ describe("Insert Data", () => {
         await db.insert(insertPricingPlans(pricingPlans));
 
         const count = await db.selectSingleRow(selectCount(PRICING_PLANS));
-        expect(count.c).toEqual(365);
+        expect(count.count).toEqual(365);
 
         const row = await db.selectSingleRow(selectRowById(333, PRICING_PLANS));
         expect(row.price).toEqual("$23.70/month");
@@ -187,10 +202,10 @@ describe("Insert Data", () => {
         }
 
         const count = await db.selectSingleRow(selectCount(REVIEWS));
-        expect(count.c).toEqual(291767);
+        expect(count.count).toEqual(291767);
 
         const uniqueAuthors = await db.selectSingleRow(selectUnigueRowCount(REVIEWS, "author"));
-        expect(uniqueAuthors.c).toEqual(191707);
+        expect(uniqueAuthors.count).toEqual(191707);
 
         done();
     },
@@ -199,7 +214,7 @@ describe("Insert Data", () => {
 
     it("should insert apps pricing plans data", async done => {
         const pricePlans = await ShopifyCsvLoader.pricingPlans();
-        const prices = (await db.selectMultipleRows(`todo`)) as PricingPlanPrice[];
+        const prices = (await db.selectMultipleRows(`SELECT * FROM ${PRICING_PLANS}`)) as PricingPlanPrice[];
         
         const chunks = _.chunk(pricePlans, 500);
         for (const ch of chunks){
@@ -207,7 +222,7 @@ describe("Insert Data", () => {
         }
 
         const count = await db.selectSingleRow(selectCount(APPS_PRICING_PLANS));
-        expect(count.c).toEqual(4896);
+        expect(count.count).toEqual(4896);
         done();
     },
     minutes(1));
